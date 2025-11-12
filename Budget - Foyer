@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#9333ea">
+    <meta name="description" content="Application de gestion de budget familial">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkJ1ZGdldCBGb3llciIsCiAgInNob3J0X25hbWUiOiAiQnVkZ2V0IiwKICAic3RhcnRfdXJsIjogIi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLAogICJ0aGVtZV9jb2xvciI6ICIjOTMzM2VhIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTVRJNElpQm9aV2xuYUhROUlqRXlPQ0lnZG1sbGQwSnZlRDBpTUNBd0lERXlPQ0F4TWpnaUlIaHRiRzV6UFNKb2RIUndPaTh2ZDNkM0xuY3pMbTl5Wnk4eU1EQXdMM04yWnlJK1BISmxZM1FnZUQwaU1DSWdlVDBpTUNJZ2QybGtkR2c5SWpFeU9DSWdhR1ZwWjJoMFBTSXhNamduSUdacGJHdzlJaU01TXpNelpXRWlMejQ4ZEdWNGRDQjRQU0kyTkNJZ2VUMGlOalFpSUdacGJHdzlJaU5tWm1abVptWWlJR1p2Ym5RdGMybDZaVDBpTkRnaUlHWnZiblF0ZDJWcFoyaDBQU0lpYjJ4a0lqNDhMM1JsZUhRK1BDOXpkbWMrIiwKICAgICAgInNpemVzIjogIjEyOHgxMjgiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQ==">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIGZpbGw9IiM5MzMzZWEiLz48dGV4dCB4PSI2NCIgeT0iNjQiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iNDgiIGZvbnQtd2VpZ2h0PSJib2xkIj7igqw8L3RleHQ+PC9zdmc+">
+    <title>Budget Foyer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            overscroll-behavior: contain;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .install-prompt {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="installPrompt" class="install-prompt hidden">
+        <div class="bg-purple-600 text-white px-6 py-4 rounded-xl shadow-2xl max-w-sm">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">📱</div>
+                <div class="flex-1">
+                    <div class="font-semibold">Installer l'application</div>
+                    <div class="text-xs opacity-90">Accedez rapidement a votre budget</div>
+                </div>
+                <button onclick="installApp()" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold text-sm">
+                    Installer
+                </button>
+                <button onclick="hideInstallPrompt()" class="text-white opacity-75 hover:opacity-100">
+                    ✕
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="root"></div>
+
+    <script type="module">
+        import React, { useState, useEffect } from 'https://cdn.skypack.dev/react';
+        import ReactDOM from 'https://cdn.skypack.dev/react-dom';
+        
+        const App = () => {
+            const moisFr = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
+            const magasins = ['Carrefour', 'Leclerc', 'Auchan', 'Intermarche', 'Casino', 'Monoprix', 'Franprix', 'Lidl', 'Aldi', 'Super U', 'Hyper U', 'Biocoop', 'Picard'];
+            const descriptions = ['Fruits et legumes', 'Viande', 'Poisson', 'Pain', 'Produits laitiers', 'Pates', 'Riz', 'Conserves', 'Boissons', 'Produits menagers', 'Hygiene'];
+            
+            const [moisActuel, setMoisActuel] = useState(new Date().getMonth());
+            const [view, setView] = useState('dashboard');
+            const [courses, setCourses] = useState(() => {
+                const saved = localStorage.getItem('courses');
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [editingCourse, setEditingCourse] = useState(null);
+            const [showMagasinSuggestions, setShowMagasinSuggestions] = useState(false);
+            const [showDescriptionSuggestions, setShowDescriptionSuggestions] = useState(false);
+            const [filteredMagasins, setFilteredMagasins] = useState([]);
+            const [filteredDescriptions, setFilteredDescriptions] = useState([]);
+            const [montantsSuggeres, setMontantsSuggeres] = useState([]);
+            
+            const [budgets, setBudgets] = useState(() => {
+                const saved = localStorage.getItem('budgets');
+                if (saved) return JSON.parse(saved);
+                const initial = {};
+                moisFr.forEach(m => {
+                    initial[m] = {
+                        revenus: { salaire1: 0, salaire2: 0, allocations: 0, autres: 0 },
+                        depenses: { loyer: 0, charges: 0, electricite: 0, gaz: 0, eau: 0, restaurants: 0, cantines: 0, carburant: 0, transportsCommun: 0 }
+                    };
+                });
+                return initial;
+            });
+
+            const [nouvelleCourse, setNouvelleCourse] = useState({
+                date: new Date().toISOString().split('T')[0],
+                magasin: '',
+                description: '',
+                montant: ''
+            });
+
+            useEffect(() => {
+                localStorage.setItem('courses', JSON.stringify(courses));
+            }, [courses]);
+
+            useEffect(() => {
+                localStorage.setItem('budgets', JSON.stringify(budgets));
+            }, [budgets]);
+
+            const calculerTotalCoursesMois = (mois) => {
+                return courses.filter(c => new Date(c.date).getMonth() === moisFr.indexOf(mois)).reduce((sum, c) => sum + parseFloat(c.montant || 0), 0);
+            };
+
+            const calculerTotalRevenus = (mois) => {
+                return Object.values(budgets[mois].revenus).reduce((sum, val) => sum + parseFloat(val || 0), 0);
+            };
+
+            const calculerTotalDepenses = (mois) => {
+                return Object.values(budgets[mois].depenses).reduce((sum, val) => sum + parseFloat(val || 0), 0) + calculerTotalCoursesMois(mois);
+            };
+
+            const calculerSolde = (mois) => {
+                return calculerTotalRevenus(mois) - calculerTotalDepenses(mois);
+            };
+
+            const handleMagasinChange = (value) => {
+                setNouvelleCourse(prev => ({...prev, magasin: value}));
+                if (value.length > 0) {
+                    const filtered = magasins.filter(m => m.toLowerCase().includes(value.toLowerCase()));
+                    setFilteredMagasins(filtered);
+                    setShowMagasinSuggestions(true);
+                    const achats = courses.filter(c => c.magasin.toLowerCase() === value.toLowerCase());
+                    if (achats.length > 0) {
+                        const montants = [...new Set(achats.map(c => parseFloat(c.montant)))].sort((a, b) => b - a).slice(0, 5);
+                        setMontantsSuggeres(montants);
+                    }
+                } else {
+                    setShowMagasinSuggestions(false);
+                    setMontantsSuggeres([]);
+                }
+            };
+
+            const handleDescriptionChange = (value) => {
+                setNouvelleCourse(prev => ({...prev, description: value}));
+                if (value.length > 0) {
+                    const filtered = descriptions.filter(d => d.toLowerCase().includes(value.toLowerCase()));
+                    setFilteredDescriptions(filtered);
+                    setShowDescriptionSuggestions(true);
+                } else {
+                    setShowDescriptionSuggestions(false);
+                }
+            };
+
+            const selectMagasin = (magasin) => {
+                setNouvelleCourse(prev => ({...prev, magasin}));
+                setShowMagasinSuggestions(false);
+                const achats = courses.filter(c => c.magasin === magasin);
+                if (achats.length > 0) {
+                    const montants = [...new Set(achats.map(c => parseFloat(c.montant)))].sort((a, b) => b - a).slice(0, 5);
+                    setMontantsSuggeres(montants);
+                }
+            };
+
+            const selectDescription = (desc) => {
+                setNouvelleCourse(prev => ({...prev, description: desc}));
+                setShowDescriptionSuggestions(false);
+            };
+
+            const selectMontant = (montant) => {
+                setNouvelleCourse(prev => ({...prev, montant: montant.toString()}));
+            };
+
+            const ajouterCourse = () => {
+                if (nouvelleCourse.montant && nouvelleCourse.date) {
+                    setCourses(prev => [...prev, { ...nouvelleCourse, id: Date.now() }]);
+                    setNouvelleCourse({ date: new Date().toISOString().split('T')[0], magasin: '', description: '', montant: '' });
+                    setMontantsSuggeres([]);
+                    setShowMagasinSuggestions(false);
+                    setShowDescriptionSuggestions(false);
+                }
+            };
+
+            const supprimerCourse = (id) => {
+                setCourses(prev => prev.filter(c => c.id !== id));
+            };
+
+            const modifierCourse = (course) => {
+                setEditingCourse({ ...course });
+            };
+
+            const sauvegarderModification = () => {
+                setCourses(prev => prev.map(c => c.id === editingCourse.id ? editingCourse : c));
+                setEditingCourse(null);
+            };
+
+            const updateBudget = (mois, type, field, value) => {
+                setBudgets(prev => ({
+                    ...prev,
+                    [mois]: { 
+                        ...prev[mois], 
+                        [type]: { 
+                            ...prev[mois][type], 
+                            [field]: value 
+                        } 
+                    }
+                }));
+            };
+
+            const moisCourant = moisFr[moisActuel];
+            const revenus = calculerTotalRevenus(moisCourant);
+            const depenses = calculerTotalDepenses(moisCourant);
+            const solde = calculerSolde(moisCourant);
+            const tauxEpargne = revenus > 0 ? ((solde / revenus) * 100).toFixed(1) : 0;
+            const budget = budgets[moisCourant];
+
+            return React.createElement('div', { className: 'min-h-screen bg-gray-50 pb-20' },
+                React.createElement('div', { className: 'max-w-md mx-auto' },
+                    React.createElement('div', { className: 'bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 shadow-lg' },
+                        React.createElement('h1', { className: 'text-2xl font-bold' }, 'Budget Foyer'),
+                        React.createElement('p', { className: 'text-sm opacity-90 mt-1' }, 'Gerez votre budget facilement')
+                    ),
+                    React.createElement('div', { className: 'p-4' },
+                        view === 'dashboard' && React.createElement('div', { className: 'space-y-4' },
+                            React.createElement('div', { className: 'flex items-center justify-between mb-4' },
+                                React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, moisCourant),
+                                React.createElement('select', { 
+                                    value: moisActuel, 
+                                    onChange: (e) => setMoisActuel(parseInt(e.target.value)),
+                                    className: 'px-3 py-2 border rounded-lg bg-white'
+                                }, moisFr.map((m, i) => React.createElement('option', { key: i, value: i }, m)))
+                            ),
+                            React.createElement('div', { className: 'grid grid-cols-2 gap-3' },
+                                React.createElement('div', { className: 'bg-gradient-to-br from-green-400 to-green-600 rounded-xl p-4 text-white shadow-lg' },
+                                    React.createElement('div', { className: 'text-sm opacity-90' }, 'Revenus'),
+                                    React.createElement('div', { className: 'text-2xl font-bold mt-1' }, revenus.toFixed(0) + ' €')
+                                ),
+                                React.createElement('div', { className: 'bg-gradient-to-br from-red-400 to-red-600 rounded-xl p-4 text-white shadow-lg' },
+                                    React.createElement('div', { className: 'text-sm opacity-90' }, 'Depenses'),
+                                    React.createElement('div', { className: 'text-2xl font-bold mt-1' }, depenses.toFixed(0) + ' €')
+                                ),
+                                React.createElement('div', { 
+                                    className: `rounded-xl p-4 text-white shadow-lg ${solde >= 0 ? 'bg-gradient-to-br from-blue-400 to-blue-600' : 'bg-gradient-to-br from-orange-400 to-orange-600'}`
+                                },
+                                    React.createElement('div', { className: 'text-sm opacity-90' }, 'Solde'),
+                                    React.createElement('div', { className: 'text-2xl font-bold mt-1' }, solde.toFixed(0) + ' €')
+                                ),
+                                React.createElement('div', { className: 'bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl p-4 text-white shadow-lg' },
+                                    React.createElement('div', { className: 'text-sm opacity-90' }, 'Taux Epargne'),
+                                    React.createElement('div', { className: 'text-2xl font-bold mt-1' }, tauxEpargne + '%')
+                                )
+                            ),
+                            React.createElement('div', { className: 'bg-white rounded-xl p-4 shadow-md' },
+                                React.createElement('div', { className: 'flex items-center justify-between mb-3' },
+                                    React.createElement('h3', { className: 'font-semibold text-gray-800' }, '🛒 Courses du mois'),
+                                    React.createElement('span', { className: 'text-lg font-bold text-green-600' }, 
+                                        calculerTotalCoursesMois(moisCourant).toFixed(2) + ' €'
+                                    )
+                                ),
+                                React.createElement('div', { className: 'text-sm text-gray-600' }, 
+                                    courses.filter(c => new Date(c.date).getMonth() === moisActuel).length + ' achats'
+                                )
+                            )
+                        ),
+                        view === 'courses' && React.createElement('div', { className: 'space-y-4' },
+                            React.createElement('div', { className: 'flex items-center justify-between' },
+                                React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, 'Courses'),
+                                React.createElement('div', { className: 'text-xl font-bold text-green-600' }, 
+                                    calculerTotalCoursesMois(moisFr[moisActuel]).toFixed(2) + ' €'
+                                )
+                            ),
+                            React.createElement('div', { className: 'bg-white rounded-xl p-4 shadow-md' },
+                                React.createElement('h3', { className: 'font-semibold mb-3 text-gray-800' }, 'Nouvel achat'),
+                                React.createElement('div', { className: 'space-y-3' },
+                                    React.createElement('input', {
+                                        type: 'date',
+                                        value: nouvelleCourse.date,
+                                        onChange: (e) => setNouvelleCourse(prev => ({...prev, date: e.target.value})),
+                                        className: 'w-full px-3 py-2 border rounded-lg'
+                                    }),
+                                    React.createElement('div', { className: 'relative' },
+                                        React.createElement('input', {
+                                            type: 'text',
+                                            placeholder: 'Magasin',
+                                            value: nouvelleCourse.magasin,
+                                            onChange: (e) => handleMagasinChange(e.target.value),
+                                            className: 'w-full px-3 py-2 border rounded-lg'
+                                        }),
+                                        showMagasinSuggestions && filteredMagasins.length > 0 && React.createElement('div', { 
+                                            className: 'absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto'
+                                        }, filteredMagasins.map((m, i) => React.createElement('div', {
+                                            key: i,
+                                            onClick: () => selectMagasin(m),
+                                            className: 'px-3 py-2 hover:bg-blue-50 cursor-pointer border-b'
+                                        }, m)))
+                                    ),
+                                    React.createElement('div', { className: 'relative' },
+                                        React.createElement('input', {
+                                            type: 'text',
+                                            placeholder: 'Description',
+                                            value: nouvelleCourse.description,
+                                            onChange: (e) => handleDescriptionChange(e.target.value),
+                                            className: 'w-full px-3 py-2 border rounded-lg'
+                                        }),
+                                        showDescriptionSuggestions && filteredDescriptions.length > 0 && React.createElement('div', { 
+                                            className: 'absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto'
+                                        }, filteredDescriptions.map((d, i) => React.createElement('div', {
+                                            key: i,
+                                            onClick: () => selectDescription(d),
+                                            className: 'px-3 py-2 hover:bg-blue-50 cursor-pointer border-b'
+                                        }, d)))
+                                    ),
+                                    React.createElement('div', null,
+                                        React.createElement('input', {
+                                            type: 'number',
+                                            step: '0.01',
+                                            placeholder: 'Montant',
+                                            value: nouvelleCourse.montant,
+                                            onChange: (e) => setNouvelleCourse(prev => ({...prev, montant: e.target.value})),
+                                            className: 'w-full px-3 py-2 border rounded-lg'
+                                        }),
+                                        montantsSuggeres.length > 0 && React.createElement('div', { className: 'mt-2' },
+                                            React.createElement('div', { className: 'text-xs text-gray-500 mb-1' }, 'Montants habituels'),
+                                            React.createElement('div', { className: 'flex flex-wrap gap-2' },
+                                                montantsSuggeres.map((m, i) => React.createElement('button', {
+                                                    key: i,
+                                                    onClick: () => selectMontant(m),
+                                                    className: 'px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm'
+                                                }, m.toFixed(2) + ' €'))
+                                            )
+                                        )
+                                    ),
+                                    React.createElement('button', {
+                                        onClick: ajouterCourse,
+                                        className: 'w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold'
+                                    }, '+ Ajouter')
+                                )
+                            ),
+                            React.createElement('div', { className: 'space-y-2' },
+                                React.createElement('h3', { className: 'font-semibold text-gray-800' }, 'Historique'),
+                                courses.filter(c => new Date(c.date).getMonth() === moisActuel)
+                                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                                    .map(course => React.createElement('div', {
+                                        key: course.id,
+                                        className: 'bg-white rounded-lg p-3 shadow-sm'
+                                    },
+                                        React.createElement('div', { className: 'flex justify-between items-start' },
+                                            React.createElement('div', null,
+                                                React.createElement('div', { className: 'font-semibold text-gray-800' }, course.magasin || 'Sans nom'),
+                                                React.createElement('div', { className: 'text-sm text-gray-600' }, 
+                                                    new Date(course.date).toLocaleDateString('fr-FR')
+                                                ),
+                                                course.description && React.createElement('div', { className: 'text-xs text-gray-500 mt-1' }, course.description)
+                                            ),
+                                            React.createElement('div', { className: 'text-right' },
+                                                React.createElement('div', { className: 'text-lg font-bold text-green-600' }, 
+                                                    parseFloat(course.montant).toFixed(2) + ' €'
+                                                ),
+                                                React.createElement('div', { className: 'flex gap-1 mt-1' },
+                                                    React.createElement('button', {
+                                                        onClick: () => supprimerCourse(course.id),
+                                                        className: 'p-1 text-red-600 hover:bg-red-50 rounded text-sm'
+                                                    }, '🗑️')
+                                                )
+                                            )
+                                        )
+                                    ))
+                            )
+                        ),
+                        view === 'budget' && React.createElement('div', { className: 'space-y-4' },
+                            React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, 'Budget - ' + moisCourant),
+                            React.createElement('div', { className: 'bg-white rounded-xl p-4 shadow-md' },
+                                React.createElement('h3', { className: 'font-semibold text-green-700 mb-3' }, 'Revenus'),
+                                React.createElement('div', { className: 'space-y-2' },
+                                    React.createElement('div', null,
+                                        React.createElement('label', { className: 'text-sm text-gray-600' }, 'Salaire 1'),
+                                        React.createElement('input', {
+                                            type: 'number',
+                                            step: '0.01',
+                                            value: budget.revenus.salaire1,
+                                            onChange: (e) => updateBudget(moisCourant, 'revenus', 'salaire1', e.target.value),
+                                            className: 'w-full px-3 py-2 border rounded-lg mt-1'
+                                        })
+                                    ),
+                                    React.createElement('div', { className: 'pt-2 border-t font-semibold text-green-700' }, 
+                                        'Total: ' + calculerTotalRevenus(moisCourant).toFixed(2) + ' €'
+                                    )
+                                )
+                            ),
+                            React.createElement('div', { className: 'bg-white rounded-xl p-4 shadow-md' },
+                                React.createElement('h3', { className: 'font-semibold text-red-700 mb-3' }, 'Depenses'),
+                                React.createElement('div', { className: 'space-y-2' },
+                                    React.createElement('div', { className: 'bg-green-50 p-2 rounded' },
+                                        React.createElement('label', { className: 'text-sm text-gray-600' }, 'Courses auto'),
+                                        React.createElement('div', { className: 'font-semibold text-green-700' }, 
+                                            calculerTotalCoursesMois(moisCourant).toFixed(2) + ' €'
+                                        )
+                                    ),
+                                    React.createElement('div', { className: 'pt-2 border-t font-semibold text-red-700' }, 
+                                        'Total: ' + calculerTotalDepenses(moisCourant).toFixed(2) + ' €'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    React.createElement('div', { className: 'fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg' },
+                        React.createElement('div', { className: 'max-w-md mx-auto flex justify-around py-3' },
+                            React.createElement('button', {
+                                onClick: () => setView('dashboard'),
+                                className: `flex flex-col items-center gap-1 px-4 ${view === 'dashboard' ? 'text-purple-600' : 'text-gray-500'}`
+                            },
+                                React.createElement('span', null, '🏠'),
+                                React.createElement('span', { className: 'text-xs' }, 'Accueil')
+                            ),
+                            React.createElement('button', {
+                                onClick: () => setView('courses'),
+                                className: `flex flex-col items-center gap-1 px-4 ${view === 'courses' ? 'text-purple-600' : 'text-gray-500'}`
+                            },
+                                React.createElement('span', null, '🛒'),
+                                React.createElement('span', { className: 'text-xs' }, 'Courses')
+                            ),
+                            React.createElement('button', {
+                                onClick: () => setView('budget'),
+                                className: `flex flex-col items-center gap-1 px-4 ${view === 'budget' ? 'text-purple-600' : 'text-gray-500'}`
+                            },
+                                React.createElement('span', null, '💰'),
+                                React.createElement('span', { className: 'text-xs' }, 'Budget')
+                            )
+                        )
+                    )
+                )
+            );
+        };
+
+        ReactDOM.render(React.createElement(App), document.getElementById('root'));
+    </script>
+
+    <script>
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.remove('hidden');
+        });
+
+        window.installApp = async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('Application installee');
+            }
+            deferredPrompt = null;
+            document.getElementById('installPrompt').classList.add('hidden');
+        };
+
+        window.hideInstallPrompt = () => {
+            document.getElementById('installPrompt').classList.add('hidden');
+        };
+
+        if ('serviceWorker' in navigator) {
