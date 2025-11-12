@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#9333ea">
     <meta name="description" content="Application de gestion de budget familial">
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkJ1ZGdldCBGb3llciIsCiAgInNob3J0X25hbWUiOiAiQnVkZ2V0IiwKICAic3RhcnRfdXJsIjogIi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLAogICJ0aGVtZV9jb2xvciI6ICIjOTMzM2VhIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTVRJNElpQm9aV2xuYUhROUlqRXlPQ0lnZG1sbGQwSnZlRDBpTUNBd0lERXlPQ0F4TWpnaUlIaHRiRzV6UFNKb2RIUndPaTh2ZDNkM0xuY3pMbTl5Wnk4eU1EQXdMM04yWnlJK1BISmxZM1FnZUQwaU1DSWdlVDBpTUNJZ2QybGtkR2c5SWpFeU9DSWdhR1ZwWjJoMFBTSXhNamduSUdacGJHdzlJaU01TXpNelpXRWlMejQ4ZEdWNGRDQjRQU0kyTkNJZ2VUMGlOalFpSUdacGJHdzlJaU5tWm1abVptWWlJR1p2Ym5RdGMybDZaVDBpTkRnaUlHWnZiblF0ZDJWcFoyaDBQU0lpYjJ4a0lqNDhMM1JsZUhRK1BDOXpkbWMrIiwKICAgICAgInNpemVzIjogIjEyOHgxMjgiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQ==">
+    <link rel="manifest" href="data:application/json;base64,ew0KICAibmFtZSI6ICJCdWRnZXQgRm95ZXIiLA0KICAic2hvcnRfbmFtZSI6ICJCdWRnZXQiLA0KICAidGhlbWVfY29sb3IiOiAiIzEzOTI5RSIsDQogICJpY29ucyI6IFtdLA0KICAic3RhcnRfdXJsIjogIi8iLA0KICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwNCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2ZmZmZmZiINCn0=">
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIGZpbGw9IiM5MzMzZWEiLz48dGV4dCB4PSI2NCIgeT0iNjQiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iNDgiIGZvbnQtd2VpZ2h0PSJib2xkIj7igqw8L3RleHQ+PC9zdmc+">
     <title>Budget Foyer</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -35,7 +35,7 @@
                 <div class="text-3xl">📱</div>
                 <div class="flex-1">
                     <div class="font-semibold">Installer l'application</div>
-                    <div class="text-xs opacity-90">Accedez rapidement a votre budget</div>
+                    <div class="text-xs opacity-90">Accédez rapidement à votre budget</div>
                 </div>
                 <button onclick="installApp()" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold text-sm">
                     Installer
@@ -46,18 +46,21 @@
             </div>
         </div>
     </div>
-
     <div id="root"></div>
-
     <script type="module">
         import React, { useState, useEffect } from 'https://cdn.skypack.dev/react';
         import ReactDOM from 'https://cdn.skypack.dev/react-dom';
-        
+
         const App = () => {
+            // Force le titre de la page
+            useEffect(() => {
+                document.title = "Budget Foyer";
+            }, []);
+
             const moisFr = ['Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'];
             const magasins = ['Carrefour', 'Leclerc', 'Auchan', 'Intermarche', 'Casino', 'Monoprix', 'Franprix', 'Lidl', 'Aldi', 'Super U', 'Hyper U', 'Biocoop', 'Picard'];
             const descriptions = ['Fruits et legumes', 'Viande', 'Poisson', 'Pain', 'Produits laitiers', 'Pates', 'Riz', 'Conserves', 'Boissons', 'Produits menagers', 'Hygiene'];
-            
+
             const [moisActuel, setMoisActuel] = useState(new Date().getMonth());
             const [view, setView] = useState('dashboard');
             const [courses, setCourses] = useState(() => {
@@ -70,7 +73,7 @@
             const [filteredMagasins, setFilteredMagasins] = useState([]);
             const [filteredDescriptions, setFilteredDescriptions] = useState([]);
             const [montantsSuggeres, setMontantsSuggeres] = useState([]);
-            
+
             const [budgets, setBudgets] = useState(() => {
                 const saved = localStorage.getItem('budgets');
                 if (saved) return JSON.parse(saved);
@@ -83,38 +86,30 @@
                 });
                 return initial;
             });
-
             const [nouvelleCourse, setNouvelleCourse] = useState({
                 date: new Date().toISOString().split('T')[0],
                 magasin: '',
                 description: '',
                 montant: ''
             });
-
             useEffect(() => {
                 localStorage.setItem('courses', JSON.stringify(courses));
             }, [courses]);
-
             useEffect(() => {
                 localStorage.setItem('budgets', JSON.stringify(budgets));
             }, [budgets]);
-
             const calculerTotalCoursesMois = (mois) => {
                 return courses.filter(c => new Date(c.date).getMonth() === moisFr.indexOf(mois)).reduce((sum, c) => sum + parseFloat(c.montant || 0), 0);
             };
-
             const calculerTotalRevenus = (mois) => {
                 return Object.values(budgets[mois].revenus).reduce((sum, val) => sum + parseFloat(val || 0), 0);
             };
-
             const calculerTotalDepenses = (mois) => {
                 return Object.values(budgets[mois].depenses).reduce((sum, val) => sum + parseFloat(val || 0), 0) + calculerTotalCoursesMois(mois);
             };
-
             const calculerSolde = (mois) => {
                 return calculerTotalRevenus(mois) - calculerTotalDepenses(mois);
             };
-
             const handleMagasinChange = (value) => {
                 setNouvelleCourse(prev => ({...prev, magasin: value}));
                 if (value.length > 0) {
@@ -131,7 +126,6 @@
                     setMontantsSuggeres([]);
                 }
             };
-
             const handleDescriptionChange = (value) => {
                 setNouvelleCourse(prev => ({...prev, description: value}));
                 if (value.length > 0) {
@@ -142,7 +136,6 @@
                     setShowDescriptionSuggestions(false);
                 }
             };
-
             const selectMagasin = (magasin) => {
                 setNouvelleCourse(prev => ({...prev, magasin}));
                 setShowMagasinSuggestions(false);
@@ -152,16 +145,13 @@
                     setMontantsSuggeres(montants);
                 }
             };
-
             const selectDescription = (desc) => {
                 setNouvelleCourse(prev => ({...prev, description: desc}));
                 setShowDescriptionSuggestions(false);
             };
-
             const selectMontant = (montant) => {
                 setNouvelleCourse(prev => ({...prev, montant: montant.toString()}));
             };
-
             const ajouterCourse = () => {
                 if (nouvelleCourse.montant && nouvelleCourse.date) {
                     setCourses(prev => [...prev, { ...nouvelleCourse, id: Date.now() }]);
@@ -171,52 +161,46 @@
                     setShowDescriptionSuggestions(false);
                 }
             };
-
             const supprimerCourse = (id) => {
                 setCourses(prev => prev.filter(c => c.id !== id));
             };
-
             const modifierCourse = (course) => {
                 setEditingCourse({ ...course });
             };
-
             const sauvegarderModification = () => {
                 setCourses(prev => prev.map(c => c.id === editingCourse.id ? editingCourse : c));
                 setEditingCourse(null);
             };
-
             const updateBudget = (mois, type, field, value) => {
                 setBudgets(prev => ({
                     ...prev,
-                    [mois]: { 
-                        ...prev[mois], 
-                        [type]: { 
-                            ...prev[mois][type], 
-                            [field]: value 
-                        } 
+                    [mois]: {
+                        ...prev[mois],
+                        [type]: {
+                            ...prev[mois][type],
+                            [field]: value
+                        }
                     }
                 }));
             };
-
             const moisCourant = moisFr[moisActuel];
             const revenus = calculerTotalRevenus(moisCourant);
             const depenses = calculerTotalDepenses(moisCourant);
             const solde = calculerSolde(moisCourant);
             const tauxEpargne = revenus > 0 ? ((solde / revenus) * 100).toFixed(1) : 0;
             const budget = budgets[moisCourant];
-
             return React.createElement('div', { className: 'min-h-screen bg-gray-50 pb-20' },
                 React.createElement('div', { className: 'max-w-md mx-auto' },
                     React.createElement('div', { className: 'bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 shadow-lg' },
                         React.createElement('h1', { className: 'text-2xl font-bold' }, 'Budget Foyer'),
-                        React.createElement('p', { className: 'text-sm opacity-90 mt-1' }, 'Gerez votre budget facilement')
+                        React.createElement('p', { className: 'text-sm opacity-90 mt-1' }, 'Gérez votre budget facilement')
                     ),
                     React.createElement('div', { className: 'p-4' },
                         view === 'dashboard' && React.createElement('div', { className: 'space-y-4' },
                             React.createElement('div', { className: 'flex items-center justify-between mb-4' },
                                 React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, moisCourant),
-                                React.createElement('select', { 
-                                    value: moisActuel, 
+                                React.createElement('select', {
+                                    value: moisActuel,
                                     onChange: (e) => setMoisActuel(parseInt(e.target.value)),
                                     className: 'px-3 py-2 border rounded-lg bg-white'
                                 }, moisFr.map((m, i) => React.createElement('option', { key: i, value: i }, m)))
@@ -227,28 +211,28 @@
                                     React.createElement('div', { className: 'text-2xl font-bold mt-1' }, revenus.toFixed(0) + ' €')
                                 ),
                                 React.createElement('div', { className: 'bg-gradient-to-br from-red-400 to-red-600 rounded-xl p-4 text-white shadow-lg' },
-                                    React.createElement('div', { className: 'text-sm opacity-90' }, 'Depenses'),
+                                    React.createElement('div', { className: 'text-sm opacity-90' }, 'Dépenses'),
                                     React.createElement('div', { className: 'text-2xl font-bold mt-1' }, depenses.toFixed(0) + ' €')
                                 ),
-                                React.createElement('div', { 
+                                React.createElement('div', {
                                     className: `rounded-xl p-4 text-white shadow-lg ${solde >= 0 ? 'bg-gradient-to-br from-blue-400 to-blue-600' : 'bg-gradient-to-br from-orange-400 to-orange-600'}`
                                 },
                                     React.createElement('div', { className: 'text-sm opacity-90' }, 'Solde'),
                                     React.createElement('div', { className: 'text-2xl font-bold mt-1' }, solde.toFixed(0) + ' €')
                                 ),
                                 React.createElement('div', { className: 'bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl p-4 text-white shadow-lg' },
-                                    React.createElement('div', { className: 'text-sm opacity-90' }, 'Taux Epargne'),
+                                    React.createElement('div', { className: 'text-sm opacity-90' }, 'Taux Épargne'),
                                     React.createElement('div', { className: 'text-2xl font-bold mt-1' }, tauxEpargne + '%')
                                 )
                             ),
                             React.createElement('div', { className: 'bg-white rounded-xl p-4 shadow-md' },
                                 React.createElement('div', { className: 'flex items-center justify-between mb-3' },
                                     React.createElement('h3', { className: 'font-semibold text-gray-800' }, '🛒 Courses du mois'),
-                                    React.createElement('span', { className: 'text-lg font-bold text-green-600' }, 
+                                    React.createElement('span', { className: 'text-lg font-bold text-green-600' },
                                         calculerTotalCoursesMois(moisCourant).toFixed(2) + ' €'
                                     )
                                 ),
-                                React.createElement('div', { className: 'text-sm text-gray-600' }, 
+                                React.createElement('div', { className: 'text-sm text-gray-600' },
                                     courses.filter(c => new Date(c.date).getMonth() === moisActuel).length + ' achats'
                                 )
                             )
@@ -256,7 +240,7 @@
                         view === 'courses' && React.createElement('div', { className: 'space-y-4' },
                             React.createElement('div', { className: 'flex items-center justify-between' },
                                 React.createElement('h2', { className: 'text-2xl font-bold text-gray-800' }, 'Courses'),
-                                React.createElement('div', { className: 'text-xl font-bold text-green-600' }, 
+                                React.createElement('div', { className: 'text-xl font-bold text-green-600' },
                                     calculerTotalCoursesMois(moisFr[moisActuel]).toFixed(2) + ' €'
                                 )
                             ),
@@ -277,7 +261,7 @@
                                             onChange: (e) => handleMagasinChange(e.target.value),
                                             className: 'w-full px-3 py-2 border rounded-lg'
                                         }),
-                                        showMagasinSuggestions && filteredMagasins.length > 0 && React.createElement('div', { 
+                                        showMagasinSuggestions && filteredMagasins.length > 0 && React.createElement('div', {
                                             className: 'absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto'
                                         }, filteredMagasins.map((m, i) => React.createElement('div', {
                                             key: i,
@@ -293,7 +277,7 @@
                                             onChange: (e) => handleDescriptionChange(e.target.value),
                                             className: 'w-full px-3 py-2 border rounded-lg'
                                         }),
-                                        showDescriptionSuggestions && filteredDescriptions.length > 0 && React.createElement('div', { 
+                                        showDescriptionSuggestions && filteredDescriptions.length > 0 && React.createElement('div', {
                                             className: 'absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto'
                                         }, filteredDescriptions.map((d, i) => React.createElement('div', {
                                             key: i,
@@ -338,13 +322,13 @@
                                         React.createElement('div', { className: 'flex justify-between items-start' },
                                             React.createElement('div', null,
                                                 React.createElement('div', { className: 'font-semibold text-gray-800' }, course.magasin || 'Sans nom'),
-                                                React.createElement('div', { className: 'text-sm text-gray-600' }, 
+                                                React.createElement('div', { className: 'text-sm text-gray-600' },
                                                     new Date(course.date).toLocaleDateString('fr-FR')
                                                 ),
                                                 course.description && React.createElement('div', { className: 'text-xs text-gray-500 mt-1' }, course.description)
                                             ),
                                             React.createElement('div', { className: 'text-right' },
-                                                React.createElement('div', { className: 'text-lg font-bold text-green-600' }, 
+                                                React.createElement('div', { className: 'text-lg font-bold text-green-600' },
                                                     parseFloat(course.montant).toFixed(2) + ' €'
                                                 ),
                                                 React.createElement('div', { className: 'flex gap-1 mt-1' },
@@ -373,21 +357,21 @@
                                             className: 'w-full px-3 py-2 border rounded-lg mt-1'
                                         })
                                     ),
-                                    React.createElement('div', { className: 'pt-2 border-t font-semibold text-green-700' }, 
+                                    React.createElement('div', { className: 'pt-2 border-t font-semibold text-green-700' },
                                         'Total: ' + calculerTotalRevenus(moisCourant).toFixed(2) + ' €'
                                     )
                                 )
                             ),
                             React.createElement('div', { className: 'bg-white rounded-xl p-4 shadow-md' },
-                                React.createElement('h3', { className: 'font-semibold text-red-700 mb-3' }, 'Depenses'),
+                                React.createElement('h3', { className: 'font-semibold text-red-700 mb-3' }, 'Dépenses'),
                                 React.createElement('div', { className: 'space-y-2' },
                                     React.createElement('div', { className: 'bg-green-50 p-2 rounded' },
                                         React.createElement('label', { className: 'text-sm text-gray-600' }, 'Courses auto'),
-                                        React.createElement('div', { className: 'font-semibold text-green-700' }, 
+                                        React.createElement('div', { className: 'font-semibold text-green-700' },
                                             calculerTotalCoursesMois(moisCourant).toFixed(2) + ' €'
                                         )
                                     ),
-                                    React.createElement('div', { className: 'pt-2 border-t font-semibold text-red-700' }, 
+                                    React.createElement('div', { className: 'pt-2 border-t font-semibold text-red-700' },
                                         'Total: ' + calculerTotalDepenses(moisCourant).toFixed(2) + ' €'
                                     )
                                 )
@@ -422,32 +406,32 @@
                 )
             );
         };
-
         ReactDOM.render(React.createElement(App), document.getElementById('root'));
     </script>
-
     <script>
         let deferredPrompt;
-        
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             document.getElementById('installPrompt').classList.remove('hidden');
         });
-
         window.installApp = async () => {
             if (!deferredPrompt) return;
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
-                console.log('Application installee');
+                console.log('Application installée');
             }
             deferredPrompt = null;
             document.getElementById('installPrompt').classList.add('hidden');
         };
-
         window.hideInstallPrompt = () => {
             document.getElementById('installPrompt').classList.add('hidden');
         };
-
         if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+</body>
+</html>
